@@ -46,6 +46,45 @@ const pools = {
   ]
 }
 
+// Role-based pools for grammatically coherent sentences
+const rolePools = {
+  apps: {
+    subj: expandPool(appSeeds, ['App','Service','Tool'], 600),
+    mod: expandPool(appMods, ['with AI','offline-first','realtime','gamified','monetized','AR','ML'], 600),
+    aud: expandPool(['students','remote workers','parents','small businesses','gamers','photographers','podcasters','creators','seniors','developers'], ['community','audience','users','teams'], 600),
+    plat: expandPool(['mobile','PWA','extension','desktop','wearable','smart TV','browser','Slack','Discord','API'], ['platform'], 600),
+    act: expandPool(['auto-summarizes photos','generates weekly reports','automatically tags content','schedules tasks','creates templates','generates themes','reads voice notes','automates payments','finds duplicates','recommends items'], ['using AI','with automation','in background'], 900)
+  },
+  youtube: {
+    subj: expandPool(['Build','Make','Prototype','Train','Optimize','Analyze','Deploy','Ship'], ['a project','a demo','a tutorial'], 600),
+    mod: expandPool(['an AI tool','a tiny app','a dataset pipeline','a code transformer','a bot','a simulator'], ['quickly','from scratch','with live coding'], 600),
+    aud: expandPool(['for beginners','for intermediate devs','for creators','for learners','for students'], ['with examples'], 600),
+    plat: expandPool(['using JavaScript','using Python','with web APIs','with prompts','with serverless'], ['in 1 day','in a weekend'], 600),
+    act: expandPool(['and explain step-by-step','and ship a demo','and open-source it','and iterate live','and add tests'], ['and show metrics'], 600)
+  },
+  games: {
+    subj: expandPool(['Casual','Puzzle','Arcade','RPG','Strategy','Multiplayer'], ['game'], 600),
+    mod: expandPool(['with physics','with procedural levels','with social features','with AI enemies','with co-op'], ['lite','pro'], 600),
+    aud: expandPool(['for mobile players','for families','for speedrunners','for puzzle lovers'], ['on phones','on PC'], 600),
+    plat: expandPool(['mobile','PC','web','console'], ['platform'], 600),
+    act: expandPool(['that adapts difficulty','that generates levels','that learns player style','that auto-saves progress'], ['and shares leaderboards'], 600)
+  },
+  tools: {
+    subj: expandPool(['CLI','Extension','Plugin','Debugger','Formatter','Linter'], ['tool'], 600),
+    mod: expandPool(['for developers','for designers','for writers','for data scientists'], ['fast','lightweight'], 600),
+    aud: expandPool(['for teams','for open-source projects','for solo devs'], ['in workflows'], 600),
+    plat: expandPool(['VSCode','GitHub Actions','Node.js CLI','Browser'], ['integration'], 600),
+    act: expandPool(['that automates builds','that formats code','that analyzes performance','that simplifies PRs'], ['with quick setup'], 600)
+  },
+  content: {
+    subj: expandPool(['Newsletter','Template','Content generator','Playlist','Series'], ['for creators'], 600),
+    mod: expandPool(['with prompts','with AI summaries','with templates','with snippets'], ['daily','weekly'], 600),
+    aud: expandPool(['for YouTubers','for bloggers','for podcasters'], ['to reuse'], 600),
+    plat: expandPool(['web','editor','platform'], ['integration'], 600),
+    act: expandPool(['that auto-suggests topics','that auto-generates outlines','that schedules posts','that creates thumbnails'], ['with analytics'], 600)
+  }
+}
+
 const timeOptions = ['1 day','2 days','3 days','1 week','2 weeks','1 month']
 
 // UI elements for new features
@@ -126,7 +165,13 @@ function generate(){
 
   // assemble result using internal module
   try{
-    const result = internalGenerator(mode, chosen, timeEl.textContent)
+    // pick role-based words if available
+    let picked = chosen
+    if(rolePools[mode]){
+      const rp = rolePools[mode]
+      picked = [ randomChoice(rp.subj), randomChoice(rp.mod), randomChoice(rp.aud), randomChoice(rp.plat), randomChoice(rp.act) ]
+    }
+    const result = internalGenerator(mode, picked, timeEl.textContent)
     const text = result.text
     const actions = result.next_actions || []
     const prompt = result.prompt || ''
@@ -150,20 +195,47 @@ function generate(){
 // AI generation via OpenAI Chat Completions (browser fetch). Requires a valid API key.
 // Internal generator module (no external API)
 function internalGenerator(mode, chosen, timeEstimate){
+  // apps mode: ensure 'that' introduces an action clause (verb phrase)
   if(mode==='apps'){
-    const A = chosen[0]
-    const B = chosen[1]
-    const C = chosen[2]
-    const prompt = `Build ${A} ${B} for ${C}`.replace(/\s+/g,' ').trim()
+    const subj = chosen[0]
+    const mod = chosen[1]
+    const aud = chosen[2]
+    const plat = chosen[3]
+    const act = chosen[4]
+    const prompt = `Build ${subj} ${mod} for ${aud} on ${plat}`.replace(/\s+/g,' ').trim()
+    const sentence = `${prompt} that ${act}`.replace(/\s+/g,' ').trim()
     const next = [
       'Define 3 core features and acceptance criteria',
       'Pick a minimal stack and scaffold the MVP (example: React PWA + Firebase)',
       'Make a prototype, test with 5 users, iterate on the top request'
     ]
-    const text = `${prompt} — Build it in ${timeEstimate}.` 
-    return {prompt, next_actions: next, text}
+    return {prompt: sentence, next_actions: next, text: sentence + ` — Build it in ${timeEstimate}.`}
   }
-  // youtube / general
+
+  if(mode==='youtube'){
+    const sentence = `${chosen[0]} ${chosen[1]} ${chosen[3]} ${chosen[2]} ${chosen[4]}`.replace(/\s+/g,' ').trim()
+    return {text: sentence}
+  }
+
+  if(mode==='games'){
+    const sentence = `Create a ${chosen[0]} ${chosen[1]} for ${chosen[2]} on ${chosen[3]} that ${chosen[4]}`.replace(/\s+/g,' ').trim()
+    const next = ['Sketch core mechanics','Prototype one level','Playtest and iterate']
+    return {text: sentence + ` — Build it in ${timeEstimate}.`, next_actions: next, prompt: sentence}
+  }
+
+  if(mode==='tools'){
+    const sentence = `Build ${chosen[0]} ${chosen[1]} for ${chosen[2]} as a ${chosen[3]} that ${chosen[4]}`.replace(/\s+/g,' ').trim()
+    const next = ['Define CLI UX','Implement core command','Document usage and ship']
+    return {text: sentence + ` — Build it in ${timeEstimate}.`, next_actions: next, prompt: sentence}
+  }
+
+  if(mode==='content'){
+    const sentence = `${chosen[0]} ${chosen[1]} ${chosen[2]} ${chosen[4]}`.replace(/\s+/g,' ').trim()
+    const next = ['Outline episodes','Produce first draft','Publish and measure engagement']
+    return {text: sentence + ` — Deliver in ${timeEstimate}.`, next_actions: next, prompt: sentence}
+  }
+
+  // fallback: generic sentence
   const sentence = `${chosen[0]} ${chosen[1]} ${chosen[2]} ${chosen[3]}, ${chosen[4]}`.replace(/\s+/g,' ').trim()
   return {text: sentence}
 }
