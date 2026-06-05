@@ -16,32 +16,22 @@
         <button id="mode-youtube" class="mode">YouTube</button>
       </div>
       <div class="percent-controls">
-        <label>1-slot X % <input id="p1" type="range" min="0" max="100" value="10"> <span id="p1v">10</span>%</label>
-        <label>2-slot X % <input id="p2" type="range" min="0" max="100" value="5"> <span id="p2v">5</span>%</label>
+        <label class="small-input">Sound <input id="useSound" type="checkbox" checked></label>
       </div>
       <div class="toolbar">
-        <label class="small-input">Use AI <input id="useAI" type="checkbox"></label>
-        <input id="apiKey" class="api-key" placeholder="Paste OpenAI API key (optional)" aria-label="OpenAI API key">
-        <label class="small-input">Sound <input id="useSound" type="checkbox" checked></label>
+        <label class="small-input">Speed:</label>
+        <label class="speed"><input type="radio" name="speed" value="normal" checked> Normal (1 w/s)</label>
+        <label class="speed"><input type="radio" name="speed" value="fast"> Fast</label>
       </div>
     </div>
 
-    <section class="machine">
-      <div id="reels" class="reels">
-        <div class="reel" data-index="0"><div class="cell">—</div></div>
-        <div class="reel" data-index="1"><div class="cell">—</div></div>
-        <div class="reel" data-index="2"><div class="cell">—</div></div>
-        <div class="reel" data-index="3"><div class="cell">—</div></div>
-        <div class="reel" data-index="4"><div class="cell">—</div></div>
+    <section class="machine paper-machine">
+      <div class="paper-wrap">
+        <div id="paper" class="paper">—</div>
+        <div id="time" class="estimate small">1 day</div>
       </div>
-
-      <div class="time-reel">
-        <label>Estimated time to build</label>
-        <div id="time" class="reel" data-index="time"><div class="cell">1 day</div></div>
-      </div>
-
       <div class="actions">
-        <button id="spin">Spin</button>
+        <button id="generate">Generate</button>
         <div style="display:flex;flex-direction:column;gap:6px">
           <div style="display:flex;gap:6px">
             <button id="copy">Copy Idea</button>
