@@ -1,6 +1,9 @@
 // Simple slot-machine idea generator
 const modeApps = document.getElementById('mode-apps')
 const modeYT = document.getElementById('mode-youtube')
+const modeGames = document.getElementById('mode-games')
+const modeTools = document.getElementById('mode-tools')
+const modeContent = document.getElementById('mode-content')
 const ideaEl = document.getElementById('paper')
 const generateBtn = document.getElementById('generate')
 const copyBtn = document.getElementById('copy')
@@ -12,9 +15,12 @@ const stackEl = document.getElementById('suggestedStack')
 const tagsEl = document.getElementById('tags')
 const nextEl = document.getElementById('nextActions')
 let mode = 'apps'
+const poolSize = 180
+const rolePoolSize = 180
+const actionPoolSize = 220
 
-// Pools generator: produce many permutations from small seeds so pools are large (~1000 entries each)
-function expandPool(seeds, modifiers, target=1000){
+// Pools generator: produce many permutations without huge startup arrays
+function expandPool(seeds, modifiers, target=200){
   const set = new Set()
   // seed combos
   while(set.size < target){
@@ -35,18 +41,18 @@ const ytMods = ['an AI tool','a tiny app','a dataset pipeline','a code transform
 
 const pools = {
   apps: [
-    expandPool(appSeeds, appMods, 900),
-    expandPool(appMods, ['with AI','offline-first','realtime','gamified','monetized','AR','ML','for kids','for creators','for teams'], 900),
-    expandPool(['for students','for remote workers','for parents','for small businesses','for gamers','for photographers','for podcasters','for learners','for seniors','for devs'], appMods, 900),
-    expandPool(['on mobile','as a PWA','as an extension','on desktop','on wearable','for smart TVs','for browsers','for Slack','for Discord','as an API'], appMods, 900),
-    expandPool(['that auto-summarizes','that schedules tasks','that generates content','with leaderboards','that auto-tags photos','that creates themes','that reads voice notes','that automates payments','that creates templates'], appMods, 900)
+    expandPool(appSeeds, appMods, poolSize),
+    expandPool(appMods, ['with AI','offline-first','realtime','gamified','monetized','AR','ML','for kids','for creators','for teams'], poolSize),
+    expandPool(['for students','for remote workers','for parents','for small businesses','for gamers','for photographers','for podcasters','for learners','for seniors','for devs'], appMods, poolSize),
+    expandPool(['on mobile','as a PWA','as an extension','on desktop','on wearable','for smart TVs','for browsers','for Slack','for Discord','as an API'], appMods, poolSize),
+    expandPool(['that auto-summarizes','that schedules tasks','that generates content','with leaderboards','that auto-tags photos','that creates themes','that reads voice notes','that automates payments','that creates templates'], appMods, poolSize)
   ],
   youtube:[
-    expandPool(ytSeeds, ['in 24 hours','in a weekend','in 3 days','in one week','in 2 days','in an afternoon','in 48 hours','in a day','in two weeks','in an hour'], 900),
-    expandPool(ytMods, ['with JS','with Python','with no frameworks','with web APIs','with prompts','with small datasets','mobile-first','serverless','open datasets','CI'], 900),
-    expandPool(['fast','scrappy','iterative','minimal','production-ready','experimental','educational','challenge-style','tutorial','livestream'], ytMods, 900),
-    expandPool(['and explain step-by-step','and ship a demo','and open-source','and iterate live','and document the process','and add tests','and make a series','and create challenges','and add AI features','and show metrics'], ytMods, 900),
-    expandPool(['for beginners','for intermediate devs','for creators','for learners','for students','for YouTubers','for hackers','for researchers','for makers','for entrepreneurs'], ytMods, 900)
+    expandPool(ytSeeds, ['in 24 hours','in a weekend','in 3 days','in one week','in 2 days','in an afternoon','in 48 hours','in a day','in two weeks','in an hour'], poolSize),
+    expandPool(ytMods, ['with JS','with Python','with no frameworks','with web APIs','with prompts','with small datasets','mobile-first','serverless','open datasets','CI'], poolSize),
+    expandPool(['fast','scrappy','iterative','minimal','production-ready','experimental','educational','challenge-style','tutorial','livestream'], ytMods, poolSize),
+    expandPool(['and explain step-by-step','and ship a demo','and open-source','and iterate live','and document the process','and add tests','and make a series','and create challenges','and add AI features','and show metrics'], ytMods, poolSize),
+    expandPool(['for beginners','for intermediate devs','for creators','for learners','for students','for YouTubers','for hackers','for researchers','for makers','for entrepreneurs'], ytMods, poolSize)
   ]
 }
 
@@ -55,91 +61,91 @@ const rolePools = {
   apps: {
     subj: expandPool([
       'Habit tracker','Photo organizer','Personal finance manager','AI chat companion','Recipe planner','Study helper','Travel planner','Smart notes','Health tracker','Team scheduler','Content scheduler','Micro-journal','Budget assistant','Inventory manager','Onboarding coach'
-    ], ['app','service','tool','platform'], 800),
+    ], ['app','service','tool','platform'], rolePoolSize),
     mod: expandPool([
       'AI-powered','offline-first','realtime-sync','privacy-first','collaborative','gamified','monetizable','cross-platform','local-first','low-code friendly'
-    ], ['with AI','for creators','for teams','for beginners'], 800),
+    ], ['with AI','for creators','for teams','for beginners'], rolePoolSize),
     aud: expandPool([
       'creators','parents','students','remote teams','small businesses','podcasters','photographers','teachers','freelancers','developers'
-    ], ['as users','as customers','as power users','for families'], 800),
+    ], ['as users','as customers','as power users','for families'], rolePoolSize),
     plat: expandPool([
       'mobile (iOS/Android)','PWA','VSCode extension','Slack integration','Discord bot','browser extension','desktop app','serverless API','headless CMS'
-    ], ['on mobile','as a PWA','as an extension','with API'], 800),
+    ], ['on mobile','as a PWA','as an extension','with API'], rolePoolSize),
     act: expandPool([
       'auto-summarizes notes','generates weekly insights','automatically tags content','schedules and reminds tasks','creates reusable templates','suggests next actions','auto-captures receipts','syncs storefronts','recommends products','auto-curates playlists'
-    ], ['using ML','with background sync','with privacy controls','on-device'], 1000)
+    ], ['using ML','with background sync','with privacy controls','on-device'], actionPoolSize)
   },
 
   youtube: {
     subj: expandPool([
       'Build','Make','Prototype','Demo','Reverse-engineer','Analyze','Ship','Refactor','Automate','Explore'
-    ], ['a quick project','a timed build','a tutorial','a demo'], 700),
+    ], ['a quick project','a timed build','a tutorial','a demo'], rolePoolSize),
     mod: expandPool([
       'an AI tool','a tiny app','a dataset pipeline','a code transformer','a simulator','a neat demo','a challenge-style build'
-    ], ['from scratch','live-coding','in a weekend','in an afternoon'], 700),
+    ], ['from scratch','live-coding','in a weekend','in an afternoon'], rolePoolSize),
     aud: expandPool([
       'for beginners','for creators','for students','for makers','for indie devs','for hackers'
-    ], ['with examples','with source code','with follow-up challenge'], 700),
+    ], ['with examples','with source code','with follow-up challenge'], rolePoolSize),
     plat: expandPool([
       'using JavaScript','using Python','with web APIs','with serverless','with Node tooling','with FFmpeg'
-    ], ['with live edits','with code snippets'], 700),
+    ], ['with live edits','with code snippets'], rolePoolSize),
     act: expandPool([
       'and explain step-by-step','and ship a demo','and open-source it','and show metrics','and iterate live','and add tests'
-    ], ['and include timestamps','and provide assets'], 700)
+    ], ['and include timestamps','and provide assets'], rolePoolSize)
   },
 
   games: {
     subj: expandPool([
       'Casual puzzle','Arcade roguelite','Narrative-driven indie','Turn-based strategy','Co-op survival','Asymmetric multiplayer','Physics-based arcade'
-    ], ['game','prototype','jam entry'], 700),
+    ], ['game','prototype','jam entry'], rolePoolSize),
     mod: expandPool([
       'with procedural levels','with emergent AI','with local multiplayer','with asynchronous multiplayer','with simple controls','with physics-based interactions'
-    ], ['lite','minimal','jam-ready'], 700),
+    ], ['lite','minimal','jam-ready'], rolePoolSize),
     aud: expandPool([
       'mobile players','families','speedrunners','puzzle lovers','casual players','party players'
-    ], ['on phones','on PC','on consoles'], 700),
+    ], ['on phones','on PC','on consoles'], rolePoolSize),
     plat: expandPool([
       'mobile (touch)','WebGL','PC','console','cross-platform','HTML5'
-    ], ['export target'], 700),
+    ], ['export target'], rolePoolSize),
     act: expandPool([
       'adapts difficulty to skill','generates varied levels','learns player preferences','rewards skillful play','shares leaderboards','auto-saves progress'
-    ], ['and records replays','with social sharing'], 800)
+    ], ['and records replays','with social sharing'], actionPoolSize)
   },
 
   tools: {
     subj: expandPool([
       'CLI helper','VSCode extension','GitHub Action','Formatter','Commit-lint tool','PR automation','Local dev server','Data validator'
-    ], ['tool','plugin','action'], 700),
+    ], ['tool','plugin','action'], rolePoolSize),
     mod: expandPool([
       'for developers','for designers','for writers','for data teams','for open-source','for maintainers'
-    ], ['fast','lightweight','configurable'], 700),
+    ], ['fast','lightweight','configurable'], rolePoolSize),
     aud: expandPool([
       'teams','open-source maintainers','solo devs','content teams','data engineers'
-    ], ['in CI','in workflows'], 700),
+    ], ['in CI','in workflows'], rolePoolSize),
     plat: expandPool([
       'VSCode','GitHub Actions','Node.js CLI','Docker','Browser extension','CI pipeline'
-    ], ['integration'], 700),
+    ], ['integration'], rolePoolSize),
     act: expandPool([
       'automates repetitive PR tasks','formats and normalizes code','analyzes performance hotspots','creates reproducible builds','validates schemas','simplifies releases'
-    ], ['with quick setup','with sane defaults'], 800)
+    ], ['with quick setup','with sane defaults'], actionPoolSize)
   },
 
   content: {
     subj: expandPool([
       'Newsletter series','Content repackager','Episode template','Creator toolkit','Automated brief generator','Content calendar'
-    ], ['for creators','for channels','for newsletters'], 700),
+    ], ['for creators','for channels','for newsletters'], rolePoolSize),
     mod: expandPool([
       'with prompts','with AI summaries','with templates','with repurpose flows','with batch publishing'
-    ], ['daily','weekly','monthly'], 700),
+    ], ['daily','weekly','monthly'], rolePoolSize),
     aud: expandPool([
       'YouTubers','bloggers','podcasters','marketers','creators'
-    ], ['to reuse','to remix','to republish'], 700),
+    ], ['to reuse','to remix','to republish'], rolePoolSize),
     plat: expandPool([
       'web editor','Notion template','YouTube workflow','newsletter platform','RSS pipeline'
-    ], ['integration'], 700),
+    ], ['integration'], rolePoolSize),
     act: expandPool([
       'auto-suggests topics','auto-generates outlines','schedules posts','creates thumbnails','batches repurposed clips','generates episode scripts'
-    ], ['with analytics','with A/B ideas'], 800)
+    ], ['with analytics','with A/B ideas'], actionPoolSize)
   }
 }
 
@@ -167,14 +173,17 @@ const useSound = document.getElementById('useSound')
 let soundEnabled = true
 useSound.addEventListener('change', ()=> soundEnabled = useSound.checked)
 
+const modeButtons = [modeApps, modeYT, modeGames, modeTools, modeContent]
 function setMode(m){
   mode = m
-  modeApps.classList.toggle('active', m==='apps')
-  modeYT.classList.toggle('active', m==='youtube')
+  modeButtons.forEach(btn => btn.classList.toggle('active', btn.id === `mode-${m}`))
 }
 
 modeApps.onclick = ()=>setMode('apps')
 modeYT.onclick = ()=>setMode('youtube')
+modeGames.onclick = ()=>setMode('games')
+modeTools.onclick = ()=>setMode('tools')
+modeContent.onclick = ()=>setMode('content')
 
 // speed radio
 function getSpeed(){
