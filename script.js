@@ -85,11 +85,31 @@ function playStop(){
 
 function randomChoice(arr){return arr[Math.floor(Math.random()*arr.length)]}
 
+// on-page error display for devices without console access
+function showError(msg){
+  console.error(msg)
+  const el = document.getElementById('errorLog')
+  if(!el) return
+  el.hidden = false
+  el.textContent = String(msg)
+  // re-enable generate if it was disabled
+  try{ if(generateBtn) generateBtn.disabled = false }catch(e){}
+}
+
+window.addEventListener('error', (ev)=>{
+  showError(ev.message + ' — ' + (ev.filename||'') + ':' + (ev.lineno||''))
+})
+window.addEventListener('unhandledrejection', (ev)=>{
+  showError('Unhandled promise rejection: '+(ev.reason && ev.reason.message? ev.reason.message : String(ev.reason)))
+})
+
 function generate(){
   // start sound
   audioCtx.resume()
   playTick()
   generateBtn.disabled = true
+  const prevText = generateBtn.textContent
+  generateBtn.textContent = 'Generating…'
   ideaEl.textContent = ''
   
 
@@ -114,14 +134,16 @@ function generate(){
     if(speed==='fast'){
       ideaEl.textContent = text
       generateBtn.disabled = false
+      generateBtn.textContent = prevText
     } else {
       // type one word per second
-      typeWords(text, 1000).then(()=> generateBtn.disabled = false)
+      typeWords(text, 1000).then(()=>{ generateBtn.disabled = false; generateBtn.textContent = prevText })
     }
   }catch(e){
     console.error('Generation failed', e)
+    showError(e && e.message? e.message : String(e))
     ideaEl.textContent = 'Something went wrong.'
-    generateBtn.disabled = false
+    try{ generateBtn.disabled = false; generateBtn.textContent = 'Generate' }catch(_){ }
   }
 }
 

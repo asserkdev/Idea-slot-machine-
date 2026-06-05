@@ -31,6 +31,8 @@ button[disabled]{opacity:0.6;cursor:not-allowed}
 .idea-output p{margin:0 0 6px 0}
 .idea-output .estimate{color:var(--muted);font-size:13px;margin-top:8px}
 
+.error-log{margin-top:12px;background:#2b0e0e;color:#ffdcdc;padding:10px;border-radius:8px;border:1px solid rgba(255,0,0,0.12);font-size:13px}
+
 .small{font-size:13px;color:var(--muted)}
 .speed{font-size:13px;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
 
