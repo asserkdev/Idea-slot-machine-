@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Idea Slot Machine</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app">
+    <h1>Idea Slot Machine</h1>
+
+    <div class="controls">
+      <div class="modes">
+        <button id="mode-apps" class="mode active">Apps</button>
+        <button id="mode-youtube" class="mode">YouTube</button>
+      </div>
+      <div class="percent-controls">
+        <label>1-slot X % <input id="p1" type="range" min="0" max="100" value="10"> <span id="p1v">10</span>%</label>
+        <label>2-slot X % <input id="p2" type="range" min="0" max="100" value="5"> <span id="p2v">5</span>%</label>
+      </div>
+      <div class="toolbar">
+        <label class="small-input">Use AI <input id="useAI" type="checkbox"></label>
+        <input id="apiKey" class="api-key" placeholder="Paste OpenAI API key (optional)" aria-label="OpenAI API key">
+        <label class="small-input">Sound <input id="useSound" type="checkbox" checked></label>
+      </div>
+    </div>
+
+    <section class="machine">
+      <div id="reels" class="reels">
+        <div class="reel" data-index="0"><div class="cell">—</div></div>
+        <div class="reel" data-index="1"><div class="cell">—</div></div>
+        <div class="reel" data-index="2"><div class="cell">—</div></div>
+        <div class="reel" data-index="3"><div class="cell">—</div></div>
+        <div class="reel" data-index="4"><div class="cell">—</div></div>
+      </div>
+
+      <div class="time-reel">
+        <label>Estimated time to build</label>
+        <div id="time" class="reel" data-index="time"><div class="cell">1 day</div></div>
+      </div>
+
+      <div class="actions">
+        <button id="spin">Spin</button>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;gap:6px">
+            <button id="copy">Copy Idea</button>
+            <button id="download">Download</button>
+            <button id="share">Share</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="output">
+      <h2>Generated Idea / Prompt</h2>
+      <div id="idea" class="idea-output">Press Spin to generate an idea.</div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
